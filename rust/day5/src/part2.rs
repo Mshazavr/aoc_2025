@@ -2,7 +2,6 @@ use std::fs::read_to_string;
 
 use crate::RunConfig;
 
-
 struct Range {
     left: i64,
     right: i64,
@@ -13,13 +12,13 @@ impl Range {
         let parts: Vec<&str> = text.split('-').collect();
         Range {
             left: parts[0].parse::<i64>().unwrap(),
-            right: parts[1].parse::<i64>().unwrap()
+            right: parts[1].parse::<i64>().unwrap(),
         }
     }
 }
 
 struct Puzzle {
-    ranges: Vec<Range>
+    ranges: Vec<Range>,
 }
 
 impl Puzzle {
@@ -27,21 +26,21 @@ impl Puzzle {
         let mut ranges: Vec<Range> = vec![];
         for line in text.lines() {
             if line == "" {
-                break
+                break;
             }
 
             ranges.push(Range::from(&line));
         }
 
-        Self {
-            ranges
-        }
+        Self { ranges }
     }
 
     fn get_total_range_coverage(&self) -> usize {
-        let mut pairs: Vec<(i64, i64)>= self.ranges.iter().map(
-            |range| (range.left, range.right)
-        ).collect();
+        let mut pairs: Vec<(i64, i64)> = self
+            .ranges
+            .iter()
+            .map(|range| (range.left, range.right))
+            .collect();
 
         pairs.sort();
 
@@ -51,8 +50,7 @@ impl Puzzle {
             if last_right < left {
                 total_coverage += right - left + 1;
                 last_right = right;
-            }
-            else if last_right < right {
+            } else if last_right < right {
                 total_coverage += right - last_right;
                 last_right = right;
             }

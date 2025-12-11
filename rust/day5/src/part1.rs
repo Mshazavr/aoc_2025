@@ -2,7 +2,6 @@ use std::fs::read_to_string;
 
 use crate::RunConfig;
 
-
 struct Range {
     left: i64,
     right: i64,
@@ -13,15 +12,14 @@ impl Range {
         let parts: Vec<&str> = text.split('-').collect();
         Range {
             left: parts[0].parse::<i64>().unwrap(),
-            right: parts[1].parse::<i64>().unwrap()
+            right: parts[1].parse::<i64>().unwrap(),
         }
     }
 }
 
-
 struct Puzzle {
     ranges: Vec<Range>,
-    ids: Vec<i64>
+    ids: Vec<i64>,
 }
 
 impl Puzzle {
@@ -38,24 +36,23 @@ impl Puzzle {
 
             if mode == 0 {
                 ranges.push(Range::from(&line));
-            }
-            else {
+            } else {
                 ids.push(line.parse::<i64>().unwrap());
             }
         }
 
-        Self {
-            ranges,
-            ids
-        }
+        Self { ranges, ids }
     }
 
     fn get_num_valid_ids(&self) -> usize {
-        self.ids.iter().filter(|id| {
-            self.ranges
+        self.ids
             .iter()
-            .any(|range| **id >= range.left && **id <= range.right)
-        }).count()
+            .filter(|id| {
+                self.ranges
+                    .iter()
+                    .any(|range| **id >= range.left && **id <= range.right)
+            })
+            .count()
     }
 }
 

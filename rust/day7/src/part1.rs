@@ -1,14 +1,13 @@
-use std::fs::read_to_string;
 use std::collections::VecDeque;
+use std::fs::read_to_string;
 
 use crate::RunConfig;
-
 
 #[derive(Debug, PartialEq, Eq)]
 enum Cell {
     Empty,
     Start,
-    Splitter
+    Splitter,
 }
 
 impl Cell {
@@ -17,23 +16,23 @@ impl Cell {
             '.' => Cell::Empty,
             'S' => Cell::Start,
             '^' => Cell::Splitter,
-            _ => panic!("")
+            _ => panic!(""),
         }
     }
 }
 
-
 #[derive(Debug)]
 struct Manifold {
     map: Vec<Vec<Cell>>,
-    start_coords: (usize, usize)
+    start_coords: (usize, usize),
 }
 
 impl Manifold {
     fn from(text: &str) -> Self {
-        let map: Vec<Vec<Cell>> = text.lines().map(|line| {
-            line.chars().map(|c| Cell::from(c)).collect()
-        }).collect();
+        let map: Vec<Vec<Cell>> = text
+            .lines()
+            .map(|line| line.chars().map(|c| Cell::from(c)).collect())
+            .collect();
         let mut start_coords: Option<(usize, usize)> = None;
 
         for (idx, cell) in map[0].iter().enumerate() {
@@ -44,7 +43,7 @@ impl Manifold {
         }
         Self {
             map,
-            start_coords: start_coords.unwrap()
+            start_coords: start_coords.unwrap(),
         }
     }
 
@@ -91,8 +90,6 @@ impl Manifold {
         num_tachyon_splits
     }
 }
-
-
 
 fn parse_input(run_config: &RunConfig) -> Manifold {
     Manifold::from(&read_to_string(run_config.get_test_path()).unwrap())

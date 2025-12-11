@@ -1,37 +1,36 @@
-use std::fs::read_to_string;
+use std::cmp::{max, min};
 use std::collections::{HashMap, VecDeque};
-use std::cmp::{min, max};
+use std::fs::read_to_string;
 
 use crate::RunConfig;
 
-fn get_rectangle_area_from_corners(corner1: (i64, i64), corner2: (i64, i64)) -> i64{
-    ((corner1.0 - corner2.0).abs() + 1) * ((corner1.1 - corner2.1 ).abs() + 1)
+fn get_rectangle_area_from_corners(corner1: (i64, i64), corner2: (i64, i64)) -> i64 {
+    ((corner1.0 - corner2.0).abs() + 1) * ((corner1.1 - corner2.1).abs() + 1)
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Cell {
     Red,
-    Empty
+    Empty,
 }
 
 #[derive(Debug)]
 struct Grid {
-    cells: Vec<Vec<Cell>>
+    cells: Vec<Vec<Cell>>,
 }
 impl Grid {
     fn from(stops: Vec<(i64, i64)>) -> Self {
         let height: usize = stops.iter().map(|stop| stop.0 as usize).max().unwrap() + 2;
         let width: usize = stops.iter().map(|stop| stop.1 as usize).max().unwrap() + 2;
         let mut cells: Vec<Vec<Cell>> = vec![vec![Cell::Empty; width]; height];
-        
+
         let mut marked_map: Vec<Vec<bool>> = vec![vec![false; width]; height];
         for i in 0..stops.len() {
             let mut start = stops[i];
             let end;
             if i + 1 == stops.len() {
                 end = stops[0];
-            }
-            else {
+            } else {
                 end = stops[i + 1];
             }
 
@@ -39,16 +38,13 @@ impl Grid {
             if start.0 == end.0 {
                 if start.1 < end.1 {
                     diff = (0, 1)
-                }
-                else {
+                } else {
                     diff = (0, -1)
                 }
-            }
-            else {
+            } else {
                 if start.0 < end.0 {
                     diff = (1, 0)
-                }
-                else {
+                } else {
                     diff = (-1, 0)
                 }
             }
@@ -63,24 +59,21 @@ impl Grid {
             cells[start.0 as usize][start.1 as usize] = Cell::Red;
         }
 
-
-        
         let mut queue: VecDeque<(i64, i64)> = VecDeque::new();
-        
+
         marked_map[0][0] = true;
         queue.push_back((0, 0));
 
         while !queue.is_empty() {
             let (x, y) = queue.pop_front().unwrap();
-            let diffs: Vec<(i64, i64)> = vec![
-                (-1, 0),
-                (1, 0),
-                (0, -1),
-                (0, 1)
-            ];
+            let diffs: Vec<(i64, i64)> = vec![(-1, 0), (1, 0), (0, -1), (0, 1)];
             for diff in diffs {
                 let (new_x, new_y) = (x + diff.0, y + diff.1);
-                if new_x < 0 || new_x >= marked_map.len() as i64 || new_y < 0 || new_y >= marked_map[0].len() as i64 {
+                if new_x < 0
+                    || new_x >= marked_map.len() as i64
+                    || new_y < 0
+                    || new_y >= marked_map[0].len() as i64
+                {
                     continue;
                 }
                 if !marked_map[new_x as usize][new_y as usize] {
@@ -98,14 +91,12 @@ impl Grid {
             }
         }
 
-        Self {
-            cells
-        }
+        Self { cells }
     }
 
     fn is_area_red(&self, corner1: (usize, usize), corner2: (usize, usize)) -> bool {
         let min_x = min(corner1.0, corner2.0);
-        let max_x = max(corner1.0, corner2.0);        
+        let max_x = max(corner1.0, corner2.0);
         let min_y = min(corner1.1, corner2.1);
         let max_y = max(corner1.1, corner2.1);
         for x in min_x..(max_x + 1) {
@@ -119,20 +110,25 @@ impl Grid {
     }
 }
 
-
 #[derive(Debug)]
 struct Theatre {
     red_tile_locations: Vec<(i64, i64)>,
     coordinate_map_x: HashMap<i64, i64>,
     coordinate_map_y: HashMap<i64, i64>,
-    mapped_grid: Grid
+    mapped_grid: Grid,
 }
 impl Theatre {
     fn from(text: &str) -> Self {
-        let red_tile_locations: Vec<(i64, i64)> = text.lines().map(|line| {
-            let parts: Vec<&str> = line.split(",").collect();
-            (parts[1].parse::<i64>().unwrap(), parts[0].parse::<i64>().unwrap())
-        }).collect();
+        let red_tile_locations: Vec<(i64, i64)> = text
+            .lines()
+            .map(|line| {
+                let parts: Vec<&str> = line.split(",").collect();
+                (
+                    parts[1].parse::<i64>().unwrap(),
+                    parts[0].parse::<i64>().unwrap(),
+                )
+            })
+            .collect();
 
         let mut coordinate_map_x: HashMap<i64, i64> = HashMap::new();
         let mut coordinate_map_y: HashMap<i64, i64> = HashMap::new();
@@ -160,18 +156,21 @@ impl Theatre {
 
         let mapped_grid = Grid::from(
             red_tile_locations
-            .iter()
-            .map(
-                |location| (*coordinate_map_x.get(&location.0).unwrap(), *coordinate_map_y.get(&location.1).unwrap())
-            )
-            .collect()
+                .iter()
+                .map(|location| {
+                    (
+                        *coordinate_map_x.get(&location.0).unwrap(),
+                        *coordinate_map_y.get(&location.1).unwrap(),
+                    )
+                })
+                .collect(),
         );
 
         Self {
             red_tile_locations,
             coordinate_map_x,
             coordinate_map_y,
-            mapped_grid
+            mapped_grid,
         }
     }
 
@@ -179,8 +178,14 @@ impl Theatre {
         let mut largest_area: i64 = 0;
         for corner1 in &self.red_tile_locations {
             for corner2 in &self.red_tile_locations {
-                let mapped_corner1 = (*self.coordinate_map_x.get(&corner1.0).unwrap() as usize, *self.coordinate_map_y.get(&corner1.1).unwrap() as usize);
-                let mapped_corner2 = (*self.coordinate_map_x.get(&corner2.0).unwrap() as usize, *self.coordinate_map_y.get(&corner2.1).unwrap() as usize);
+                let mapped_corner1 = (
+                    *self.coordinate_map_x.get(&corner1.0).unwrap() as usize,
+                    *self.coordinate_map_y.get(&corner1.1).unwrap() as usize,
+                );
+                let mapped_corner2 = (
+                    *self.coordinate_map_x.get(&corner2.0).unwrap() as usize,
+                    *self.coordinate_map_y.get(&corner2.1).unwrap() as usize,
+                );
 
                 if !self.mapped_grid.is_area_red(mapped_corner1, mapped_corner2) {
                     continue;
@@ -194,7 +199,7 @@ impl Theatre {
         }
         largest_area
     }
- }
+}
 
 fn parse_input(run_config: &RunConfig) -> Theatre {
     Theatre::from(&read_to_string(run_config.get_test_path()).unwrap())

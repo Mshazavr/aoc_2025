@@ -5,7 +5,7 @@ use crate::RunConfig;
 #[derive(Clone)]
 enum Operation {
     Plus,
-    Mult
+    Mult,
 }
 
 impl Operation {
@@ -13,14 +13,14 @@ impl Operation {
         match text {
             "+" => Some(Operation::Plus),
             "*" => Some(Operation::Mult),
-            _ => None
+            _ => None,
         }
     }
 }
 
 struct Problem {
     numbers: Vec<i64>,
-    operation: Operation
+    operation: Operation,
 }
 
 impl Problem {
@@ -39,7 +39,7 @@ impl Problem {
 }
 
 struct WorkSheet {
-    problems: Vec<Problem>
+    problems: Vec<Problem>,
 }
 
 impl WorkSheet {
@@ -49,26 +49,33 @@ impl WorkSheet {
         for line in text.lines() {
             let parts: Vec<&str> = line.split_whitespace().collect();
             if parts[0].chars().nth(0).unwrap().is_alphanumeric() {
-                number_rows.push(parts.iter().map(|part| part.parse::<i64>().unwrap()).collect());
-            }
-            else {
-                operations = parts.iter().map(|part| Operation::from(part).unwrap()).collect();
+                number_rows.push(
+                    parts
+                        .iter()
+                        .map(|part| part.parse::<i64>().unwrap())
+                        .collect(),
+                );
+            } else {
+                operations = parts
+                    .iter()
+                    .map(|part| Operation::from(part).unwrap())
+                    .collect();
             }
         }
 
-        
         let mut problems: Vec<Problem> = vec![];
         for (problem_idx, operation) in operations.iter().enumerate() {
             let problem = Problem {
-                numbers: number_rows.iter().map(|number_row| number_row[problem_idx]).collect(),
-                operation: operation.clone()
+                numbers: number_rows
+                    .iter()
+                    .map(|number_row| number_row[problem_idx])
+                    .collect(),
+                operation: operation.clone(),
             };
             problems.push(problem);
         }
 
-        Self {
-            problems,
-        }
+        Self { problems }
     }
 
     fn solve(&self) -> i64 {

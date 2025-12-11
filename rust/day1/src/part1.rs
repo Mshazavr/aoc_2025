@@ -1,5 +1,5 @@
-use std::slice;
 use std::fs::read_to_string;
+use std::slice;
 
 use crate::RunConfig;
 
@@ -9,11 +9,11 @@ struct Position(i16);
 #[derive(Debug)]
 enum Operation {
     Left(i16),
-    Right(i16)
+    Right(i16),
 }
 
 #[derive(Debug)]
-struct PasswordSequence (Vec<Operation>);
+struct PasswordSequence(Vec<Operation>);
 
 impl PasswordSequence {
     fn iter(&self) -> slice::Iter<'_, Operation> {
@@ -33,7 +33,7 @@ impl<'a> IntoIterator for &'a PasswordSequence {
 fn move_position(position: &mut Position, operation: &Operation) {
     let change: i16 = match operation {
         Operation::Left(n) => -*n,
-        Operation::Right(n) => *n
+        Operation::Right(n) => *n,
     };
     position.0 = (position.0 + change + 100) % 100;
 }
@@ -58,15 +58,19 @@ fn apply_sequence_and_count_zeroes(sequence: &PasswordSequence) -> u32 {
 
 fn parse_input(run_config: &RunConfig) -> PasswordSequence {
     PasswordSequence(
-        read_to_string(run_config.get_test_path()).unwrap().lines().map(|line| {
-            let direction: char = line.chars().nth(0).unwrap();
-            let magnitude: i16 = line[1..].parse::<i16>().unwrap();
-            match direction {
-                'L' => Operation::Left(magnitude),
-                'R' => Operation::Right(magnitude),
-                _ => panic!("Expected the first letter to be L or R.")
-            }
-        }).collect()
+        read_to_string(run_config.get_test_path())
+            .unwrap()
+            .lines()
+            .map(|line| {
+                let direction: char = line.chars().nth(0).unwrap();
+                let magnitude: i16 = line[1..].parse::<i16>().unwrap();
+                match direction {
+                    'L' => Operation::Left(magnitude),
+                    'R' => Operation::Right(magnitude),
+                    _ => panic!("Expected the first letter to be L or R."),
+                }
+            })
+            .collect(),
     )
 }
 

@@ -5,7 +5,7 @@ use crate::RunConfig;
 #[derive(Debug, Clone)]
 enum Operation {
     Plus,
-    Mult
+    Mult,
 }
 
 impl Operation {
@@ -13,7 +13,7 @@ impl Operation {
         match text {
             "+" => Some(Operation::Plus),
             "*" => Some(Operation::Mult),
-            _ => None
+            _ => None,
         }
     }
 }
@@ -21,7 +21,7 @@ impl Operation {
 #[derive(Debug)]
 struct Problem {
     numbers: Vec<i64>,
-    operation: Operation
+    operation: Operation,
 }
 
 impl Problem {
@@ -40,7 +40,7 @@ impl Problem {
 }
 
 struct WorkSheet {
-    problems: Vec<Problem>
+    problems: Vec<Problem>,
 }
 
 impl WorkSheet {
@@ -57,9 +57,9 @@ impl WorkSheet {
 
             if last_char == '+' || last_char == '*' {
                 if let Some(_) = cur_operation {
-                    problems.push(Problem { 
-                        numbers: cur_numbers.clone(), 
-                        operation: cur_operation.unwrap() 
+                    problems.push(Problem {
+                        numbers: cur_numbers.clone(),
+                        operation: cur_operation.unwrap(),
                     });
                 }
                 cur_numbers = vec![];
@@ -74,7 +74,7 @@ impl WorkSheet {
                     let diff: i64 = base * (cur_char.to_digit(10).unwrap() as i64);
                     cur_number = match cur_number {
                         None => Some(diff),
-                        Some(x) => Some(x + diff)
+                        Some(x) => Some(x + diff),
                     };
                     base *= 10;
                 }
@@ -83,14 +83,12 @@ impl WorkSheet {
                 cur_numbers.push(x);
             }
         }
-        problems.push(Problem { 
-            numbers: cur_numbers.clone(), 
-            operation: cur_operation.unwrap() 
+        problems.push(Problem {
+            numbers: cur_numbers.clone(),
+            operation: cur_operation.unwrap(),
         });
 
-        Self {
-            problems
-        }
+        Self { problems }
     }
 
     fn solve(&self) -> i64 {

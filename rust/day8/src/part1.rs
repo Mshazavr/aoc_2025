@@ -2,11 +2,10 @@ use std::fs::read_to_string;
 
 use crate::RunConfig;
 
-
 struct JunctionBox {
     x: i64,
     y: i64,
-    z: i64
+    z: i64,
 }
 
 impl JunctionBox {
@@ -24,8 +23,12 @@ fn junction_box_distance_squared(box1: &JunctionBox, box2: &JunctionBox) -> i64 
     (box1.x - box2.x).pow(2) + (box1.y - box2.y).pow(2) + (box1.z - box2.z).pow(2)
 }
 
-
-fn spread_dfs(node: usize, visited_map: &mut Vec<Option<i64>>, edges_mat: &Vec<Vec<usize>>, component_sizes: &mut Vec<i64>) {
+fn spread_dfs(
+    node: usize,
+    visited_map: &mut Vec<Option<i64>>,
+    edges_mat: &Vec<Vec<usize>>,
+    component_sizes: &mut Vec<i64>,
+) {
     component_sizes[visited_map[node].unwrap() as usize] += 1;
     for neighbour in edges_mat[node].iter() {
         match visited_map[*neighbour] {
@@ -45,13 +48,18 @@ fn get_num_components_after_merge(boxes: &Vec<JunctionBox>, num_connections: i64
             if j <= i {
                 continue;
             }
-            distances.push((junction_box_distance_squared(junction_box1, junction_box2), (i, j)));
+            distances.push((
+                junction_box_distance_squared(junction_box1, junction_box2),
+                (i, j),
+            ));
         }
     }
 
     distances.sort();
 
-    let edges: Vec<(usize, usize)> = (0..num_connections).map(|idx| distances[idx as usize].1).collect();
+    let edges: Vec<(usize, usize)> = (0..num_connections)
+        .map(|idx| distances[idx as usize].1)
+        .collect();
     let mut edges_mat: Vec<Vec<usize>> = vec![vec![]; boxes.len()];
     for edge in edges {
         edges_mat[edge.0].push(edge.1);
@@ -59,7 +67,7 @@ fn get_num_components_after_merge(boxes: &Vec<JunctionBox>, num_connections: i64
     }
 
     let mut num_components: i64 = 0;
-    let mut component_sizes: Vec<i64> = vec![]; 
+    let mut component_sizes: Vec<i64> = vec![];
     let mut visited_map: Vec<Option<i64>> = vec![None; boxes.len()];
     (0..boxes.len()).for_each(|node| {
         if visited_map[node].is_none() {
@@ -72,12 +80,16 @@ fn get_num_components_after_merge(boxes: &Vec<JunctionBox>, num_connections: i64
 
     component_sizes.sort();
     component_sizes[(num_components - 1) as usize]
-    * component_sizes[(num_components - 2) as usize]
-    * component_sizes[(num_components - 3) as usize] 
+        * component_sizes[(num_components - 2) as usize]
+        * component_sizes[(num_components - 3) as usize]
 }
 
 fn parse_input(run_config: &RunConfig) -> Vec<JunctionBox> {
-    read_to_string(run_config.get_test_path()).unwrap().lines().map(|line| JunctionBox::from(line)).collect()
+    read_to_string(run_config.get_test_path())
+        .unwrap()
+        .lines()
+        .map(|line| JunctionBox::from(line))
+        .collect()
 }
 
 pub fn run(run_config: &RunConfig) -> i64 {
